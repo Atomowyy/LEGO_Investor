@@ -1,14 +1,16 @@
 import mysql.connector
+import os
 from mysql.connector import Error
+from dotenv import load_dotenv
 
-
-def connector(host, database, port, username, user_password):
+def connector():
     try:
-        connection = mysql.connector.connect(host=host,
-                                             database=database,
-                                             port=port,
-                                             user=username,
-                                             password=user_password)
+        load_dotenv()
+        connection = mysql.connector.connect(host=os.getenv('host'),
+                                             database=os.getenv('database'),
+                                             port=os.getenv('port'),
+                                             user=os.getenv('user'),
+                                             password=os.getenv('password'))
         if connection.is_connected():
             print("Connected succesfully")
     except Error as e:
@@ -17,16 +19,23 @@ def connector(host, database, port, username, user_password):
         return connection
 
 
-def register():
-    print("Register")
+#def register(connected_database):
 
 
-def login():
-    print("login")
+#def login():
+#    print("login")
+
+
+connector()
 
 
 print("Welcome to LEGO Investor - price checker\n1.Login\n2.Create new account")
-decision = int(input())
-while decision != 1 and decision != 2:
+"""decision = input()
+
+
+while decision.isnumeric()==False or int(decision)!= 1 and int(decision) != 2:
     print("GŁupiś")
-    decision = int(input("Choose number between 1(login) and 2(register)"))
+    decision = input("Choose number between 1(login) and 2(register)")
+if decision == 1:
+    connected_database = connector('srv22.mikr.us','testowa', 20194, 'orzel', 'jabol')
+"""
