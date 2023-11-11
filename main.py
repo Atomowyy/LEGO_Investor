@@ -4,6 +4,7 @@ import hashlib
 from mysql.connector import Error
 from dotenv import load_dotenv
 
+
 def connector():
     try:
         load_dotenv()
@@ -23,22 +24,40 @@ def connector():
     finally:
         return connection
 
-#def login():
-#    print("login")
+
+def login():
+    user_login = input("Login: ")
+    user_password = input("Password:")
+    verification_hash = hashlib.new("SHA256")
+    verification_hash.update(user_password.encode())
+    try:
+        connected_database = connector()
+        cursor = connected_database.cursor()
+        querry = """SELECT id FROM users WHERE username = '%s'""" % (user_login)
+        cursor.execute(querry)
+        id = cursor.fetchone()
+        if id == None:
+            print("There is no user called: "+user_login+"\nPlease register first!")
+        else:
+            querry = """SELECT password FROM users WHERE username = '%s'""" % (user_login)
+            cursor.execute(querry)
+            hashed_password = cursor.fetchone()
+            if verification_hash.hexdigest() == hashed_password[0]:
+                print("Succesfully logged in!")
+            else:
+                print("Your password is incorrect!")
+    except Error as e:
+        print("Error", e)
+    finally:
+        if connected_database.is_connected():
+            cursor.close()
+            connected_database.close()
+        if id != None and verification_hash.hexdigest() == hashed_password[0]:
+            user_informations = [id[0], user_login]
+            return user_informations
 
 
-#connector()
-
-
-print("Welcome to LEGO Investor - price checker\n1.Login\n2.Create new account")
-decision = input()
-
-
-while decision.isnumeric()==False or int(decision)!= 1 and int(decision) != 2:
-    print("It looks like that you have entered wrong option. Try again!")
-    decision = input("Choose number between 1(login) and 2(register)")
-
-if int(decision) == 2:
+def register():
     new_user_login = input("Enter your login: ")
     new_user_password = input("Enter your password:")
     confirm_password = input("Enter password again:")
@@ -51,9 +70,8 @@ if int(decision) == 2:
     try:
         connected_database = connector()
         cursor = connected_database.cursor()
-        querry = """INSERT INTO users (username, password) VALUES(%s, %s)"""
-        creditials = (new_user_login, hashed_new_password.hexdigest())
-        cursor.execute(querry, creditials)
+        querry = """INSERT INTO users (username, password) VALUES('%s','%s')""" % (new_user_login, hashed_new_password.hexdigest())
+        cursor.execute(querry)
         connected_database.commit()
         print("User registered succesfully!")
     except Error as e:
@@ -62,3 +80,18 @@ if int(decision) == 2:
         if connected_database.is_connected():
             cursor.close()
             connected_database.close()
+
+
+def logged_in_menu(user_id, username):
+    print("menu")
+
+print("Welcome to LEGO Investor - price checker\n1.Login\n2.Create new account")
+decision = input()
+while decision.isnumeric()==False or int(decision)!= 1 and int(decision) != 2:
+    print("It looks like that you have entered wrong option. Try again!")
+    decision = input("Choose number between 1(login) and 2(register)")
+if int(decision) == 1:
+    user_informations = login()
+    logged_in_menu(user_informations[0],user_informations[1])
+elif int(decision) == 2:
+    register()
