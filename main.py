@@ -101,9 +101,39 @@ def opening_screen():
         sys.exit()
 
 
-def add_set(user_id):
+def add_set(user_id, username):
     set_number = int(input("Enter your set number: "))
-    price = int(input("Enter price that you've paid: "))
+    price = float(input("Enter price that you've paid: "))
+    try:
+        connected_database = connector()
+        cursor = connected_database.cursor()
+        querry = """INSERT INTO sets (user_id, set_number, bought_price) VALUES('%s','%s','%s')""" % (user_id, set_number, price)
+        cursor.execute(querry)
+        connected_database.commit()
+        print("LEGO set added!")
+    except Error as e:
+        print("Something went wrong!", e)
+    finally:
+        if connected_database.is_connected():
+            cursor.close()
+            connected_database.close()
+        logged_in_menu(user_id, username)
+
+
+def list_sets(user_id, username):
+    try:
+        connected_database = connector()
+        cursor = connected_database.cursor()
+        querry = """SELECT set_number, bought_price FROM sets where user_id = '%s' """ % (user_id)
+        cursor.execute(querry)
+        sets = cursor.fetchone()
+        print(sets[0])
+    except Error as e:
+        print("Something went wrong!", e)
+    finally:
+        if connected_database.is_connected():
+            connected_database.close()
+            cursor.close()
 
 
 def logged_in_menu(user_id, username):
@@ -114,11 +144,11 @@ def logged_in_menu(user_id, username):
         print("It looks like that you have entered wrong option. Try again!")
         decision = input()
     if int(decision) == 1:
-        print("add")
+        add_set(user_id, username)
     elif int(decision) == 2:
         print("summary")
     elif int(decision) == 3:
-        sys.exit()
+        opening_screen()
 
 
 while True:
