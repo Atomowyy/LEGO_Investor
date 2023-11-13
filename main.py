@@ -1,3 +1,5 @@
+import sys
+
 import mysql.connector
 import os
 import hashlib
@@ -38,6 +40,7 @@ def login():
         id = cursor.fetchone()
         if id == None:
             print("There is no user called: "+user_login+"\nPlease register first!")
+            opening_screen()
         else:
             querry = """SELECT password FROM users WHERE username = '%s'""" % (user_login)
             cursor.execute(querry)
@@ -46,6 +49,7 @@ def login():
                 print("Succesfully logged in!")
             else:
                 print("Your password is incorrect!")
+                opening_screen()
     except Error as e:
         print("Error", e)
     finally:
@@ -82,16 +86,40 @@ def register():
             connected_database.close()
 
 
-def logged_in_menu(user_id, username):
-    print("menu")
+def opening_screen():
+    print("----------------------------------------\nWelcome to LEGO Investor - price checker\n----------------------------------------\n1.Login\n2.Create new account\n3.Exit\n")
+    decision = input()
+    while decision.isnumeric() == False or int(decision) != 1 and int(decision) != 2 and int(decision) != 3:
+        print("It looks like that you have entered wrong option. Try again!")
+        decision = input("Choose number between: 1(login), 2(register), 3(exit)")
+    if int(decision) == 1:
+        user_informations = login()
+        logged_in_menu(user_informations[0], user_informations[1])
+    elif int(decision) == 2:
+        register()
+    elif int(decision) == 3:
+        sys.exit()
 
-print("Welcome to LEGO Investor - price checker\n1.Login\n2.Create new account")
-decision = input()
-while decision.isnumeric()==False or int(decision)!= 1 and int(decision) != 2:
-    print("It looks like that you have entered wrong option. Try again!")
-    decision = input("Choose number between 1(login) and 2(register)")
-if int(decision) == 1:
-    user_informations = login()
-    logged_in_menu(user_informations[0],user_informations[1])
-elif int(decision) == 2:
-    register()
+
+def add_set(user_id):
+    set_number = int(input("Enter your set number: "))
+    price = int(input("Enter price that you've paid: "))
+
+
+def logged_in_menu(user_id, username):
+    print("----------------------------------------\nWelcome, "+username+"!\n----------------------------------------")
+    print("1.Add new LEGO set\n2.Show LEGO sets that you already own\n3.Logout")
+    decision = input()
+    while decision.isnumeric() == False or int(decision) != 1 and int(decision) != 2 and int(decision) != 3:
+        print("It looks like that you have entered wrong option. Try again!")
+        decision = input()
+    if int(decision) == 1:
+        print("add")
+    elif int(decision) == 2:
+        print("summary")
+    elif int(decision) == 3:
+        sys.exit()
+
+
+while True:
+    opening_screen()
