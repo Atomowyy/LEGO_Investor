@@ -84,7 +84,7 @@ def register():
         if connected_database.is_connected():
             cursor.close()
             connected_database.close()
-
+        opening_screen()
 
 def opening_screen():
     print("----------------------------------------\nWelcome to LEGO Investor - price checker\n----------------------------------------\n1.Login\n2.Create new account\n3.Exit\n")
@@ -124,17 +124,17 @@ def list_sets(user_id, username):
     try:
         connected_database = connector()
         cursor = connected_database.cursor()
-        querry = """SELECT set_number, bought_price FROM sets where user_id = '%s' """ % (user_id)
+        querry = """SELECT set_number, bought_price FROM sets WHERE user_id = '%s'""" % (user_id)
         cursor.execute(querry)
-        sets = cursor.fetchone()
-        print(sets[0])
+        sets = cursor.fetchall()
+        print(sets)
     except Error as e:
         print("Something went wrong!", e)
     finally:
         if connected_database.is_connected():
             connected_database.close()
             cursor.close()
-
+        logged_in_menu(user_id, username)
 
 def logged_in_menu(user_id, username):
     print("----------------------------------------\nWelcome, "+username+"!\n----------------------------------------")
@@ -146,7 +146,7 @@ def logged_in_menu(user_id, username):
     if int(decision) == 1:
         add_set(user_id, username)
     elif int(decision) == 2:
-        print("summary")
+        list_sets(user_id, username)
     elif int(decision) == 3:
         opening_screen()
 
