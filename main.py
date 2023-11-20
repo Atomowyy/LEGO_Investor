@@ -86,6 +86,7 @@ def register():
             connected_database.close()
         opening_screen()
 
+
 def opening_screen():
     print("----------------------------------------\nWelcome to LEGO Investor - price checker\n----------------------------------------\n1.Login\n2.Create new account\n3.Exit\n")
     decision = input()
@@ -127,7 +128,9 @@ def list_sets(user_id, username):
         querry = """SELECT set_number, bought_price FROM sets WHERE user_id = '%s'""" % (user_id)
         cursor.execute(querry)
         sets = cursor.fetchall()
-        print(sets)
+        print("LEGO set number / price bought")
+        for i in sets:
+            print(i[0], " / ", i[1],"PLN")
     except Error as e:
         print("Something went wrong!", e)
     finally:
