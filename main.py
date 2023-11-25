@@ -6,6 +6,8 @@ from mysql.connector import Error
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from tabulate import tabulate
+
 
 def connector():
     try:
@@ -129,13 +131,12 @@ def check_set_price(user_id, username):
         querry = """SELECT set_number, bought_price FROM sets WHERE user_id = '%s'""" % (user_id)
         cursor.execute(querry)
         sets = cursor.fetchall()
-        print("LEGO set number / price bought / new price / used price")
+        print("LEGO set number | Price that you've paid | New price | Used price")
         for i in sets:
             row = [i[0],i[1]]
             scrapping_info.append(row)
         complete_informations = bricklink_scrapping(scrapping_info)
-        for i in complete_informations:
-            print(i)
+        display_table(complete_informations, "price_table")
     except Error as e:
         print("Something went wrong!", e)
     finally:
@@ -151,9 +152,7 @@ def list_sets(user_id, username):
         querry = """SELECT set_number, bought_price FROM sets WHERE user_id = '%s'""" % (user_id)
         cursor.execute(querry)
         sets = cursor.fetchall()
-        print("LEGO set number / price bought")
-        for i in sets:
-            print(i[0], " / ", i[1],"PLN")
+        display_table(sets, "display_table")
     except Error as e:
         print("Something went wrong!", e)
     finally:
@@ -191,8 +190,27 @@ def bricklink_scrapping(set_info):
         i.append(used_medium_price.text)
     driver.close()
     return set_info
+
+
+def display_table(price_table, type):
+    if type=="display_table":
+        prepared_table = []
+        prepared_table.append(["LEGO set number","Price that you've paid"])
+        for i in  price_table:
+            row = [str(i[0]),"PLN "+str(i[1])]
+            prepared_table.append(row)
+        print(tabulate(prepared_table, headers="firstrow", tablefmt="simple_outline"))
+    elif type=="price_table":
+        prepared_table = []
+        prepared_table.append(["LEGO set number", "Price that you've paid", "New set price", "Used set price"])
+        for i in price_table:
+            row = [str(i[0]), "PLN " + str(i[1]), str(i[2]), str(i[3])]
+            prepared_table.append(row)
+        print(tabulate(prepared_table, headers="firstrow", tablefmt="simple_outline"))
+    else:
+        print("Something went wrong!")
+
+
+
 while True:
    opening_screen()
-
-#bricklink_scrapping(8043)
-#bricklink_scrapping(75280)
