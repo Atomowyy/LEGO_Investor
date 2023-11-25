@@ -1,11 +1,11 @@
 import sys
-
 import mysql.connector
 import os
 import hashlib
 from mysql.connector import Error
 from dotenv import load_dotenv
-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 def connector():
     try:
@@ -121,6 +121,29 @@ def add_set(user_id, username):
         logged_in_menu(user_id, username)
 
 
+def check_set_price(user_id, username):
+    scrapping_info = []
+    try:
+        connected_database = connector()
+        cursor = connected_database.cursor()
+        querry = """SELECT set_number, bought_price FROM sets WHERE user_id = '%s'""" % (user_id)
+        cursor.execute(querry)
+        sets = cursor.fetchall()
+        print("LEGO set number / price bought / new price / used price")
+        for i in sets:
+            row = [i[0],i[1]]
+            scrapping_info.append(row)
+        complete_informations = bricklink_scrapping(scrapping_info)
+        for i in complete_informations:
+            print(i)
+    except Error as e:
+        print("Something went wrong!", e)
+    finally:
+        if connected_database.is_connected():
+            connected_database.close()
+            cursor.close()
+        logged_in_menu(user_id, username)
+
 def list_sets(user_id, username):
     try:
         connected_database = connector()
@@ -139,11 +162,12 @@ def list_sets(user_id, username):
             cursor.close()
         logged_in_menu(user_id, username)
 
+
 def logged_in_menu(user_id, username):
     print("----------------------------------------\nWelcome, "+username+"!\n----------------------------------------")
-    print("1.Add new LEGO set\n2.Show LEGO sets that you already own\n3.Logout")
+    print("1.Add new LEGO set\n2.Show LEGO sets that you already own\n3.Check prices for your LEGO sets online\n4.Logout")
     decision = input()
-    while decision.isnumeric() == False or int(decision) != 1 and int(decision) != 2 and int(decision) != 3:
+    while decision.isnumeric() == False or int(decision) != 1 and int(decision) != 2 and int(decision) != 3 and int(decision) != 4:
         print("It looks like that you have entered wrong option. Try again!")
         decision = input()
     if int(decision) == 1:
@@ -151,8 +175,24 @@ def logged_in_menu(user_id, username):
     elif int(decision) == 2:
         list_sets(user_id, username)
     elif int(decision) == 3:
+        check_set_price(user_id, username)
+    elif int(decision) == 4:
         opening_screen()
 
 
+def bricklink_scrapping(set_info):
+    driver = webdriver.Chrome()
+    for i in set_info:
+        set_id = i[0]
+        driver.get("https://www.bricklink.com/v2/catalog/catalogitem.page?S="+str(set_id)+"#T=P")
+        new_medium_price = driver.find_element(By.XPATH, '//*[@id="_idPGContents"]/table/tbody/tr[3]/td[3]/table/tbody/tr[4]/td[2]/b')
+        i.append(new_medium_price.text)
+        used_medium_price = driver.find_element(By.XPATH, '//*[@id="_idPGContents"]/table/tbody/tr[3]/td[4]/table/tbody/tr[4]/td[2]/b')
+        i.append(used_medium_price.text)
+    driver.close()
+    return set_info
 while True:
-    opening_screen()
+   opening_screen()
+
+#bricklink_scrapping(8043)
+#bricklink_scrapping(75280)
