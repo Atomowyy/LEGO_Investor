@@ -15,6 +15,7 @@ I'll add this someday
 Script require Chrome web browser, make sure to install it 
 #### 2. .env file
 Script reads DB informations from .env file, you have to create text file named .env in main.py directory
+There is a example file included to repository. 
 ```
 # .env
 host={database server IP, localhost for xampp}
