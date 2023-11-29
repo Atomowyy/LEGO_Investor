@@ -28,7 +28,7 @@ password={priviliged user password}
 There will be sql file in this repository within few days.
 #### 4. Python libraries
 Install folowing libraries in terminal:
--tabulate
--selenium
--mysql-connector-python
+* tabulate
+* selenium
+* mysql-connector-python
 If this wont work, right click on underscored lanes at first lanes of code, and select "install" or "import"
