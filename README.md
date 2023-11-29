@@ -31,4 +31,5 @@ Install folowing libraries in terminal:
 * tabulate
 * selenium
 * mysql-connector-python
+
 If this wont work, right click on underscored lanes at first lanes of code, and select "install" or "import"
